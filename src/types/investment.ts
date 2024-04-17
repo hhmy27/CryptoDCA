@@ -12,3 +12,12 @@ export interface InvestmentTargetProps {
     onPercentageChange: (index: number, event: ChangeEvent<HTMLInputElement>) => void
     onRemoveTarget: (index: number) => void
 }
+
+export interface FrequencySelectorProps {
+    frequency: string
+    dayOfWeek: string
+    dayOfMonth: number | undefined
+    onFrequencyChange: (value: string) => void
+    onDayOfWeekChange: (value: string) => void
+    onDayOfMonthChange: (value: number) => void
+}

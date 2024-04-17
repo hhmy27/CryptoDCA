@@ -3,6 +3,7 @@ import {Select, Input, Button, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
+import {FrequencySelector} from './FrequencySelector'
 import {InvestmentAllocation} from '@/types/investment'
 import {InvestmentTarget} from '@/ui/InvestmentTarget'
 
@@ -70,34 +71,19 @@ export const InvestmentForm = () => {
                 />
             ))}
 
+            <FrequencySelector
+                frequency={frequency}
+                dayOfWeek={dayOfWeek}
+                dayOfMonth={dayOfMonth}
+                onFrequencyChange={setFrequency}
+                onDayOfWeekChange={setDayOfWeek}
+                onDayOfMonthChange={setDayOfMonth}
+            />
+
             <Button type="secondary" onClick={handleAddTarget}>
                 +
             </Button>
-            <Select value={frequency} onChange={(value) => setFrequency(value.toString())}>
-                <Select.Option value="Daily">Daily</Select.Option>
-                <Select.Option value="Weekly">Weekly</Select.Option>
-                <Select.Option value="Monthly">Monthly</Select.Option>
-            </Select>
-            {frequency === 'Weekly' && (
-                <Select value={dayOfWeek} onChange={(value) => setDayOfWeek(value.toString())}>
-                    <Select.Option value="Monday">Monday</Select.Option>
-                    <Select.Option value="Tuesday">Tuesday</Select.Option>
-                    <Select.Option value="Wednesday">Wednesday</Select.Option>
-                    <Select.Option value="Thursday">Thursday</Select.Option>
-                    <Select.Option value="Friday">Friday</Select.Option>
-                    <Select.Option value="Saturday">Saturday</Select.Option>
-                    <Select.Option value="Sunday">Sunday</Select.Option>
-                </Select>
-            )}
-            {frequency === 'Monthly' && (
-                <Select value={dayOfMonth?.toString()} onChange={(value) => setDayOfMonth(Number(value))}>
-                    {Array.from({length: 31}, (_, i) => (
-                        <Select.Option key={i + 1} value={(i + 1).toString()}>
-                            {i + 1}
-                        </Select.Option>
-                    ))}
-                </Select>
-            )}
+
             {isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
             <DatePicker selected={startDate} onChange={(date) => setStartDate(date || new Date())} />
             <Button type="success" htmlType="submit">
