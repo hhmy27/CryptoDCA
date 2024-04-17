@@ -1,5 +1,7 @@
 import React, {useState, ChangeEvent, FormEvent} from 'react'
 import {Select, Input, Button, Text, Note} from '@geist-ui/react'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
 
 interface InvestmentTarget {
@@ -13,6 +15,8 @@ export const InvestmentForm = () => {
     const [dayOfWeek, setDayOfWeek] = useState<string>('')
     const [dayOfMonth, setDayOfMonth] = useState<number>()
     const [isOverLimit, setIsOverLimit] = useState<boolean>(false)
+
+    const [startDate, setStartDate] = useState(new Date())
 
     const handleCurrencyChange = (index: number, value: string) => {
         const newTargets = [...investmentTargets]
@@ -102,6 +106,7 @@ export const InvestmentForm = () => {
                 </Select>
             )}
             {isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
+            <DatePicker selected={startDate} onChange={(date) => setStartDate(date || new Date())} />
             <Button type="success" htmlType="submit">
                 Invest
             </Button>
