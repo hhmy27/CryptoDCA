@@ -3,11 +3,7 @@ import {Select, Input, Button, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
-
-interface InvestmentTarget {
-    currency: string
-    percentage: string
-}
+import {InvestmentTarget} from '@/types/investment'
 
 export const InvestmentForm = () => {
     const [investmentTargets, setInvestmentTargets] = useState<InvestmentTarget[]>([{currency: '', percentage: ''}])
@@ -21,6 +17,7 @@ export const InvestmentForm = () => {
     const handleCurrencyChange = (index: number, value: string) => {
         const newTargets = [...investmentTargets]
         newTargets[index].currency = value
+        setInvestmentTargets(newTargets)
         setInvestmentTargets(newTargets)
     }
 
