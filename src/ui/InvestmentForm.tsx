@@ -11,7 +11,7 @@ export const InvestmentForm = () => {
     const [investmentTargets, setInvestmentTargets] = useState<InvestmentTarget[]>([{currency: '', percentage: ''}])
     const [frequency, setFrequency] = useState<string>('')
     const [dayOfWeek, setDayOfWeek] = useState<string>('')
-    const [dayOfMonth, setDayOfMonth] = useState<string>('')
+    const [dayOfMonth, setDayOfMonth] = useState<number>()
     const [isOverLimit, setIsOverLimit] = useState<boolean>(false)
 
     const handleCurrencyChange = (index: number, value: string) => {
@@ -34,6 +34,8 @@ export const InvestmentForm = () => {
     }
 
     const handleRemoveTarget = (index: number) => {
+        if (investmentTargets.length === 1) return
+
         const newTargets = [...investmentTargets]
         newTargets.splice(index, 1)
         setInvestmentTargets(newTargets)
@@ -91,9 +93,9 @@ export const InvestmentForm = () => {
                 </Select>
             )}
             {frequency === 'Monthly' && (
-                <Select value={dayOfMonth} onChange={(value) => setDayOfMonth(value.toString())}>
+                <Select value={dayOfMonth?.toString()} onChange={(value) => setDayOfMonth(Number(value))}>
                     {Array.from({length: 31}, (_, i) => (
-                        <Select.Option key={i + 1} value={i + 1}>
+                        <Select.Option key={i + 1} value={(i + 1).toString()}>
                             {i + 1}
                         </Select.Option>
                     ))}
