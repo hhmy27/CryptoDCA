@@ -1,12 +1,12 @@
 import {ChangeEvent} from 'react'
 
-export interface InvestmentTarget {
+export interface InvestmentAllocation {
     currency: string
     percentage: string
 }
 
 export interface InvestmentTargetProps {
-    target: InvestmentTarget
+    target: InvestmentAllocation
     index: number
     onCurrencyChange: (index: number, value: string) => void
     onPercentageChange: (index: number, event: ChangeEvent<HTMLInputElement>) => void

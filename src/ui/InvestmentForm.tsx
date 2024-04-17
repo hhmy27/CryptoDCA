@@ -3,10 +3,11 @@ import {Select, Input, Button, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
-import {InvestmentTarget} from '@/types/investment'
+import {InvestmentAllocation} from '@/types/investment'
+import {InvestmentTarget} from '@/ui/InvestmentTarget'
 
 export const InvestmentForm = () => {
-    const [investmentTargets, setInvestmentTargets] = useState<InvestmentTarget[]>([{currency: '', percentage: ''}])
+    const [investmentTargets, setInvestmentTargets] = useState<InvestmentAllocation[]>([{currency: '', percentage: ''}])
     const [frequency, setFrequency] = useState<string>('')
     const [dayOfWeek, setDayOfWeek] = useState<string>('')
     const [dayOfMonth, setDayOfMonth] = useState<number>()
@@ -59,21 +60,16 @@ export const InvestmentForm = () => {
     return (
         <form onSubmit={handleSubmit}>
             {investmentTargets.map((target, index) => (
-                <div key={index}>
-                    <Text h4>Investment target {index + 1}</Text>
-                    <Select value={target.currency} onChange={(value) => handleCurrencyChange(index, value.toString())}>
-                        {supportedCryptocurrencies.map((crypto) => (
-                            <Select.Option key={crypto} value={crypto}>
-                                {crypto}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                    <Input type="default" value={target.percentage} onChange={(e) => handlePercentageChange(index, e)} />
-                    <Button type="error" onClick={() => handleRemoveTarget(index)}>
-                        -
-                    </Button>
-                </div>
+                <InvestmentTarget
+                    key={index}
+                    target={target}
+                    index={index}
+                    onCurrencyChange={handleCurrencyChange}
+                    onPercentageChange={handlePercentageChange}
+                    onRemoveTarget={handleRemoveTarget}
+                />
             ))}
+
             <Button type="secondary" onClick={handleAddTarget}>
                 +
             </Button>
