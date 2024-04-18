@@ -6,61 +6,58 @@ import {supportedCryptocurrencies} from '@/lib/config'
 import {FrequencySelector} from './FrequencySelector'
 import {InvestmentAllocation} from '@/types/investment'
 import {InvestmentTarget} from '@/ui/InvestmentTarget'
+import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 
 export const InvestmentForm = () => {
-    const [investmentTargets, setInvestmentTargets] = useState<InvestmentAllocation[]>([{currency: '', percentage: ''}])
-    const [frequency, setFrequency] = useState<string>('')
-    const [dayOfWeek, setDayOfWeek] = useState<string>('')
-    const [dayOfMonth, setDayOfMonth] = useState<number>()
-    const [isOverLimit, setIsOverLimit] = useState<boolean>(false)
-
-    const [startDate, setStartDate] = useState(new Date())
+    const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
+        investmentTargets: [{currency: '', percentage: 0}],
+        frequencyConfig: {frequency: 'daily'},
+        startDate: new Date(),
+        isOverLimit: false
+    })
 
     const handleCurrencyChange = (index: number, value: string) => {
-        const newTargets = [...investmentTargets]
-        newTargets[index].currency = value
-        setInvestmentTargets(newTargets)
-        setInvestmentTargets(newTargets)
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets[index].currency = value
+        setInvestmentConfig(newConfig)
     }
 
     const handlePercentageChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
-        const newTargets = [...investmentTargets]
-        newTargets[index].percentage = event.target.value
-        setInvestmentTargets(newTargets)
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets[index].percentage = Number(event.target.value)
+        setInvestmentConfig(newConfig)
 
-        const totalPercentage = newTargets.reduce((total, target) => total + Number(target.percentage), 0)
-        setIsOverLimit(totalPercentage > 100)
+        const totalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
+        newConfig.isOverLimit = totalPercentage > 100
+        setInvestmentConfig(newConfig)
     }
 
     const handleAddTarget = () => {
-        setInvestmentTargets([...investmentTargets, {currency: '', percentage: ''}])
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets.push({currency: '', percentage: 0})
+        setInvestmentConfig(newConfig)
     }
 
     const handleRemoveTarget = (index: number) => {
-        if (investmentTargets.length === 1) return
+        if (investmentConfig.investmentTargets.length === 1) return
 
-        const newTargets = [...investmentTargets]
-        newTargets.splice(index, 1)
-        setInvestmentTargets(newTargets)
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets.splice(index, 1)
+        setInvestmentConfig(newConfig)
     }
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        if (isOverLimit) {
+        if (investmentConfig.isOverLimit) {
             console.error('Total investment percentage exceeds 100%')
             return
         }
-        console.log({
-            investmentTargets,
-            frequency,
-            dayOfWeek,
-            dayOfMonth
-        })
+        console.log(investmentConfig)
     }
 
     return (
         <form onSubmit={handleSubmit}>
-            {investmentTargets.map((target, index) => (
+            {investmentConfig.investmentTargets.map((target, index) => (
                 <InvestmentTarget
                     key={index}
                     target={target}
@@ -72,20 +69,15 @@ export const InvestmentForm = () => {
             ))}
 
             <FrequencySelector
-                frequency={frequency}
-                dayOfWeek={dayOfWeek}
-                dayOfMonth={dayOfMonth}
-                onFrequencyChange={setFrequency}
-                onDayOfWeekChange={setDayOfWeek}
-                onDayOfMonthChange={setDayOfMonth}
+                frequencyConfig={investmentConfig.frequencyConfig}
+                onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
             />
-
             <Button type="secondary" onClick={handleAddTarget}>
                 +
             </Button>
 
-            {isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
-            <DatePicker selected={startDate} onChange={(date) => setStartDate(date || new Date())} />
+            {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
+            <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
             <Button type="success" htmlType="submit">
                 Invest
             </Button>

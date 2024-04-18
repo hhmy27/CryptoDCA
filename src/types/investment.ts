@@ -1,8 +1,22 @@
-import {ChangeEvent} from 'react'
+import * as yup from 'yup'
+import {ChangeEvent, createContext} from 'react'
+
+export type FrequencyConfig = {
+    frequency: 'daily' | 'weekly' | 'monthly'
+    dayOfWeek?: number // 1-7 represents Monday to Sunday
+    dayOfMonth?: number
+}
+
+export type InvestmentConfig = {
+    investmentTargets: InvestmentAllocation[]
+    frequencyConfig: FrequencyConfig
+    startDate: Date
+    isOverLimit: boolean
+}
 
 export interface InvestmentAllocation {
     currency: string
-    percentage: string
+    percentage: number
 }
 
 export interface InvestmentTargetProps {
@@ -14,10 +28,6 @@ export interface InvestmentTargetProps {
 }
 
 export interface FrequencySelectorProps {
-    frequency: string
-    dayOfWeek: string
-    dayOfMonth: number | undefined
-    onFrequencyChange: (value: string) => void
-    onDayOfWeekChange: (value: string) => void
-    onDayOfMonthChange: (value: number) => void
+    frequencyConfig: FrequencyConfig
+    onFrequencyConfigChange: (value: FrequencyConfig) => void
 }
