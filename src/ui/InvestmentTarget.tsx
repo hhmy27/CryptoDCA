@@ -6,6 +6,14 @@ import {supportedCryptocurrencies} from '@/lib/config'
 import {InvestmentTargetProps} from '@/types/investment'
 
 export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({target, index, onCurrencyChange, onPercentageChange, onRemoveTarget}) => {
+    const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Don't allow non-numeric input
+        if (e.target.value !== '' && isNaN(Number(e.target.value))) {
+            return
+        }
+        onPercentageChange(index, e)
+    }
+
     return (
         <div>
             <Text h4>Investment target {index + 1}</Text>
@@ -16,7 +24,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({target, index
                     </Select.Option>
                 ))}
             </Select>
-            <Input type="default" value={target.percentage} onChange={(e) => onPercentageChange(index, e)} />
+            <Input type="default" value={target.percentage} onChange={handlePercentageChange} />
             <Button type="error" onClick={() => onRemoveTarget(index)}>
                 -
             </Button>
