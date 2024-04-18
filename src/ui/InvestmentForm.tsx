@@ -15,6 +15,7 @@ export const InvestmentForm = () => {
         startDate: new Date(),
         isOverLimit: false
     })
+    const [totalPercentage, setTotalPercentage] = useState<number>(0)
 
     const handleCurrencyChange = (index: number, value: string) => {
         const newConfig = {...investmentConfig}
@@ -27,9 +28,10 @@ export const InvestmentForm = () => {
         newConfig.investmentTargets[index].percentage = Number(event.target.value)
         setInvestmentConfig(newConfig)
 
-        const totalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
-        newConfig.isOverLimit = totalPercentage > 100
+        const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
+        newConfig.isOverLimit = newTotalPercentage > 100
         setInvestmentConfig(newConfig)
+        setTotalPercentage(newTotalPercentage)
     }
 
     const handleAddTarget = () => {
@@ -48,10 +50,12 @@ export const InvestmentForm = () => {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        if (investmentConfig.isOverLimit) {
-            console.error('Total investment percentage exceeds 100%')
+
+        if (investmentConfig.isOverLimit || totalPercentage < 100) {
+            console.error('Total investment percentage should be exactly 100%')
             return
         }
+
         console.log(investmentConfig)
     }
 
@@ -77,6 +81,7 @@ export const InvestmentForm = () => {
             </Button>
 
             {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
+            {totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
             <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
             <Button type="success" htmlType="submit">
                 Invest
