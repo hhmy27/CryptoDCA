@@ -23,8 +23,10 @@ export interface InvestmentAllocation {
 export interface InvestmentTargetProps {
     target: InvestmentAllocation
     index: number
-    onCurrencyChange: (index: number, value: string) => void
-    onPercentageChange: (index: number, event: ChangeEvent<HTMLInputElement>) => void
+    selectedCurrencies: string[]
+    setSelectedCurrencies: React.Dispatch<React.SetStateAction<Map<number, string>>>
+    onCurrencyChange: (index: number, currency: string) => void
+    onPercentageChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void
     onRemoveTarget: (index: number) => void
 }
 

@@ -106,6 +106,7 @@ export const InvestmentForm = () => {
                     target={target}
                     index={index}
                     selectedCurrencies={Array.from(selectedCurrencies.values())}
+                    setSelectedCurrencies={setSelectedCurrencies}
                     onCurrencyChange={handleCurrencyChange}
                     onPercentageChange={handlePercentageChange}
                     onRemoveTarget={handleRemoveTarget}
