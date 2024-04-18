@@ -10,17 +10,20 @@ import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 
 export const InvestmentForm = () => {
     const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
-        investmentTargets: [{currency: '', percentage: 0}],
+        investmentTargets: [{currency: supportedCryptocurrencies[0], percentage: 0}],
         frequencyConfig: {frequency: 'daily'},
         startDate: new Date(),
         isOverLimit: false
     })
     const [totalPercentage, setTotalPercentage] = useState<number>(0)
+    const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
+    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<number, string>>(new Map([[0, supportedCryptocurrencies[0]]]))
 
     const handleCurrencyChange = (index: number, value: string) => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets[index].currency = value
         setInvestmentConfig(newConfig)
+        setSelectedCurrencies(new Map(selectedCurrencies.set(index, value)))
     }
 
     const handlePercentageChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
@@ -36,8 +39,11 @@ export const InvestmentForm = () => {
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        newConfig.investmentTargets.push({currency: '', percentage: 0})
+        const unselectedCurrencies = supportedCryptocurrencies.filter((currency) => !Array.from(selectedCurrencies.values()).includes(currency))
+        const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
+        newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
         setInvestmentConfig(newConfig)
+        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets.length, newCurrency)))
     }
 
     const handleRemoveTarget = (index: number) => {
@@ -46,10 +52,12 @@ export const InvestmentForm = () => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
+        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== index)))
     }
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
+        setHasAttemptedSubmit(true)
 
         if (investmentConfig.isOverLimit || totalPercentage < 100) {
             console.error('Total investment percentage should be exactly 100%')
@@ -66,6 +74,7 @@ export const InvestmentForm = () => {
                     key={index}
                     target={target}
                     index={index}
+                    selectedCurrencies={Array.from(selectedCurrencies.values())}
                     onCurrencyChange={handleCurrencyChange}
                     onPercentageChange={handlePercentageChange}
                     onRemoveTarget={handleRemoveTarget}
@@ -81,7 +90,7 @@ export const InvestmentForm = () => {
             </Button>
 
             {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
-            {totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
+            {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
             <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
             <Button type="success" htmlType="submit">
                 Invest
