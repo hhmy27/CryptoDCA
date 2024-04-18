@@ -11,6 +11,7 @@ export type InvestmentConfig = {
     investmentTargets: InvestmentAllocation[]
     frequencyConfig: FrequencyConfig
     startDate: Date
+    investmentAmount: number
     isOverLimit: boolean
 }
 

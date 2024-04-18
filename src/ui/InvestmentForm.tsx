@@ -13,8 +13,15 @@ export const InvestmentForm = () => {
         investmentTargets: [{currency: supportedCryptocurrencies[0], percentage: 0}],
         frequencyConfig: {frequency: 'daily'},
         startDate: new Date(),
+        investmentAmount: 0,
         isOverLimit: false
     })
+    const handleInvestmentAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const newConfig = {...investmentConfig}
+        newConfig.investmentAmount = Number(event.target.value)
+        setInvestmentConfig(newConfig)
+    }
+
     const [totalPercentage, setTotalPercentage] = useState<number>(0)
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
     const [selectedCurrencies, setSelectedCurrencies] = useState<Map<number, string>>(new Map([[0, supportedCryptocurrencies[0]]]))
@@ -95,6 +102,8 @@ export const InvestmentForm = () => {
             <Button type="success" htmlType="submit">
                 Invest
             </Button>
+
+            <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
         </form>
     )
 }
