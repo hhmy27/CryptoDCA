@@ -10,7 +10,7 @@ import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 
 export const InvestmentForm = () => {
     const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
-        investmentTargets: [{currency: supportedCryptocurrencies[0], percentage: 0}],
+        investmentTargets: [{currency: 'BTC-USD', percentage: 0}],
         frequencyConfig: {frequency: 'daily'},
         startDate: new Date(),
         investmentAmount: 0,
@@ -27,7 +27,7 @@ export const InvestmentForm = () => {
 
     const [totalPercentage, setTotalPercentage] = useState<number>(0)
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
-    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<number, string>>(new Map([[0, supportedCryptocurrencies[0]]]))
+    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<number, string>>(new Map([[0, Object.keys(supportedCryptocurrencies)[0]]]))
 
     const distributePercentageEqually = (newConfig: InvestmentConfig) => {
         const targetCount = newConfig.investmentTargets.length
@@ -55,7 +55,7 @@ export const InvestmentForm = () => {
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        const unselectedCurrencies = supportedCryptocurrencies.filter((currency) => !Array.from(selectedCurrencies.values()).includes(currency))
+        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !Array.from(selectedCurrencies.values()).includes(currency))
         const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
         newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
         setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets.length, newCurrency)))

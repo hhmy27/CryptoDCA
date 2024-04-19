@@ -35,7 +35,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
         <div>
             <Text h4>Investment target {index + 1}</Text>
             <Select value={target.currency} onChange={handleSelectChange}>
-                {supportedCryptocurrencies.map((crypto) => {
+                {Object.keys(supportedCryptocurrencies).map((crypto) => {
                     const isSelected = selectedCurrencies.includes(crypto)
                     return (
                         <Select.Option key={crypto} value={crypto} disabled={isSelected && crypto !== target.currency}>
