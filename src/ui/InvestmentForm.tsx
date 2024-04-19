@@ -101,36 +101,39 @@ export const InvestmentForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
-            {investmentConfig.investmentTargets.map((target, index) => (
-                <InvestmentTarget
-                    key={index}
-                    target={target}
-                    index={index}
-                    selectedCurrencies={Array.from(selectedCurrencies.values())}
-                    setSelectedCurrencies={setSelectedCurrencies}
-                    onCurrencyChange={handleCurrencyChange}
-                    onPercentageChange={handlePercentageChange}
-                    onRemoveTarget={handleRemoveTarget}
+        <div>
+            <h1>Investment Form</h1>
+            <form onSubmit={handleSubmit}>
+                <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
+                {investmentConfig.investmentTargets.map((target, index) => (
+                    <InvestmentTarget
+                        key={index}
+                        target={target}
+                        index={index}
+                        selectedCurrencies={Array.from(selectedCurrencies.values())}
+                        setSelectedCurrencies={setSelectedCurrencies}
+                        onCurrencyChange={handleCurrencyChange}
+                        onPercentageChange={handlePercentageChange}
+                        onRemoveTarget={handleRemoveTarget}
+                    />
+                ))}
+
+                <FrequencySelector
+                    frequencyConfig={investmentConfig.frequencyConfig}
+                    onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
                 />
-            ))}
+                <Button type="secondary" onClick={handleAddTarget}>
+                    +
+                </Button>
 
-            <FrequencySelector
-                frequencyConfig={investmentConfig.frequencyConfig}
-                onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
-            />
-            <Button type="secondary" onClick={handleAddTarget}>
-                +
-            </Button>
-
-            {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
-            {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
-            <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
-            <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
-            <Button type="success" htmlType="submit">
-                Invest
-            </Button>
-        </form>
+                {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
+                {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
+                <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
+                <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
+                <Button type="success" htmlType="submit">
+                    Invest
+                </Button>
+            </form>
+        </div>
     )
 }

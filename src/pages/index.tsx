@@ -1,12 +1,12 @@
 import React from 'react'
 import {InvestmentForm} from '@/ui/InvestmentForm'
+import {NextUIProvider} from '@nextui-org/react'
 
 const Home = () => {
     return (
-        <div>
-            <h1>Investment Form</h1>
+        <NextUIProvider>
             <InvestmentForm />
-        </div>
+        </NextUIProvider>
     )
 }
 
