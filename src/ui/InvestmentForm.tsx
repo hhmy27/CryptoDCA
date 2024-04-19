@@ -17,6 +17,9 @@ export const InvestmentForm = () => {
         isOverLimit: false
     })
     const handleInvestmentAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.value !== '' && isNaN(Number(event.target.value))) {
+            return
+        }
         const newConfig = {...investmentConfig}
         newConfig.investmentAmount = Number(event.target.value)
         setInvestmentConfig(newConfig)
