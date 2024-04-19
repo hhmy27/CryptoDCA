@@ -101,38 +101,55 @@ export const InvestmentForm = () => {
     }
 
     return (
-        <div>
-            <h1>Investment Form</h1>
-            <form onSubmit={handleSubmit}>
+        <div className="m-4">
+            <h1 className="text-2xl font-bold mb-4">Investment Form</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
                 {investmentConfig.investmentTargets.map((target, index) => (
-                    <InvestmentTarget
-                        key={index}
-                        target={target}
-                        index={index}
-                        selectedCurrencies={Array.from(selectedCurrencies.values())}
-                        setSelectedCurrencies={setSelectedCurrencies}
-                        onCurrencyChange={handleCurrencyChange}
-                        onPercentageChange={handlePercentageChange}
-                        onRemoveTarget={handleRemoveTarget}
-                    />
+                    <div key={index}>
+                        <InvestmentTarget
+                            target={target}
+                            index={index}
+                            selectedCurrencies={Array.from(selectedCurrencies.values())}
+                            setSelectedCurrencies={setSelectedCurrencies}
+                            onCurrencyChange={handleCurrencyChange}
+                            onPercentageChange={handlePercentageChange}
+                            onRemoveTarget={handleRemoveTarget}
+                        />
+                    </div>
                 ))}
 
-                <FrequencySelector
-                    frequencyConfig={investmentConfig.frequencyConfig}
-                    onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
-                />
-                <Button type="secondary" onClick={handleAddTarget}>
-                    +
-                </Button>
+                <div>
+                    <FrequencySelector
+                        frequencyConfig={investmentConfig.frequencyConfig}
+                        onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
+                    />
+                </div>
+
+                <div>
+                    <Button type="secondary" onClick={handleAddTarget}>
+                        +
+                    </Button>
+                </div>
 
                 {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
                 {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
-                <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
-                <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
-                <Button type="success" htmlType="submit">
-                    Invest
-                </Button>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                    <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
+                    <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
+                </div>
+
+                <div>
+                    <Button type="success" htmlType="submit">
+                        Invest
+                    </Button>
+                </div>
             </form>
         </div>
     )

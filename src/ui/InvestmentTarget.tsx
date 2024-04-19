@@ -1,10 +1,10 @@
 import React, {useState, ChangeEvent, FormEvent} from 'react'
-import {Select, Input, Text, Note} from '@geist-ui/react'
+import {Select, Button, Input, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
 import {InvestmentTargetProps} from '@/types/investment'
-import {Button} from '@nextui-org/react'
+// import {Button} from '@nextui-org/react'
 
 export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
     target,
@@ -45,7 +45,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
                 })}
             </Select>
             <Input type="default" value={target.percentage} onChange={handlePercentageChange} />
-            <Button size="md" onClick={() => onRemoveTarget(index)}>
+            <Button type="error" onClick={() => onRemoveTarget(index)}>
                 -
             </Button>
         </div>
