@@ -39,5 +39,7 @@ for key, value in ticker_map.items():
     print(f"    startDate: '{start_date}',")
     print(f"    marketCap: {value[1]['market_cap']},")
     print(f"    marketCapRank: {value[1]['market_cap_rank']},")
+    print(f"    icon: '@/data/crypto_icons/{key}.png',")
+
     print("  },")
 print('};')
