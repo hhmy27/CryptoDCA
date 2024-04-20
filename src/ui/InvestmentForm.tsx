@@ -26,7 +26,8 @@ export const InvestmentForm = () => {
         setInvestmentConfig(newConfig)
     }
 
-    const [totalPercentage, setTotalPercentage] = useState<number>(0)
+    const [totalPercentage, setTotalPercentage] = useState<number>(100)
+    const [dateSelected, setDateSelected] = useState(false)
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
     const [selectedCurrencies, setSelectedCurrencies] = useState<Map<string, Cryptocurrency>>(
         new Map([[investmentConfig.investmentTargets[0].currency, supportedCryptocurrencies[investmentConfig.investmentTargets[0].currency]]])
@@ -43,6 +44,7 @@ export const InvestmentForm = () => {
             }
         })
         setLatestStartDate(latest)
+        console.log('latest start date:', latest)
     }, [selectedCurrencies])
 
     const distributePercentageEqually = (newConfig: InvestmentConfig) => {
@@ -95,10 +97,9 @@ export const InvestmentForm = () => {
         if (investmentConfig.investmentTargets.length === 1) return
 
         const newConfig = {...investmentConfig}
-        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
-        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== removedCurrency)))
+        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== newConfig.investmentTargets[index].currency)))
 
         const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
         newConfig.isOverLimit = newTotalPercentage > 100
@@ -114,7 +115,13 @@ export const InvestmentForm = () => {
             return
         }
 
-        console.log(investmentConfig)
+        const newConfig = {...investmentConfig}
+        if (!dateSelected) {
+            newConfig.startDate = latestStartDate
+        }
+
+        setInvestmentConfig(newConfig)
+        console.log(newConfig)
     }
 
     return (
@@ -157,7 +164,10 @@ export const InvestmentForm = () => {
                     <DatePicker
                         selected={latestStartDate}
                         minDate={latestStartDate}
-                        onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})}
+                        onChange={(date) => {
+                            setInvestmentConfig({...investmentConfig, startDate: date || new Date()})
+                            setDateSelected(true)
+                        }}
                     />{' '}
                 </div>
 
