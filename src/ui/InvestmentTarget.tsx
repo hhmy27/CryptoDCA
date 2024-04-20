@@ -46,10 +46,9 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
             <Select value={target.currency} onChange={handleSelectChange}>
                 {sortedCryptos.map((crypto) => {
                     const isSelected = selectedCurrencies.includes(crypto)
-                    const Icon = dynamic(() => import(supportedCryptocurrencies[crypto].icon))
                     return (
                         <Select.Option key={crypto} value={crypto} disabled={isSelected && crypto !== target.currency}>
-                            {isSelected && <Icon />} {crypto}
+                            {isSelected } {crypto}
                         </Select.Option>
                     )
                 })}
