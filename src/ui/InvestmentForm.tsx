@@ -144,6 +144,7 @@ export const InvestmentForm = () => {
                 ))}
 
                 <div>
+                    <label className="block text-sm font-medium text-gray-700">Investment Frequency</label>
                     <FrequencySelector
                         frequencyConfig={investmentConfig.frequencyConfig}
                         onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
@@ -158,6 +159,7 @@ export const InvestmentForm = () => {
 
                 {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
                 {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
+                {hasAttemptedSubmit && investmentConfig.investmentAmount <= 0 && <Note type="error">Investment amount should be greater than 0</Note>}
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Start Date</label>
