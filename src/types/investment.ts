@@ -7,6 +7,22 @@ export type FrequencyConfig = {
     dayOfMonth?: number
 }
 
+export type InvestmentFormProps = {
+    investmentConfig: InvestmentConfig
+    setInvestmentConfig: React.Dispatch<React.SetStateAction<InvestmentConfig>>
+    submitted: boolean
+    setSubmitted: React.Dispatch<React.SetStateAction<boolean>>
+
+}
+
+export type InvestmentData = {
+    currentTotalValue: number
+    totalInvestment: number
+    currentProfit: number
+    profitRate: number
+    holdingCost: number
+}
+
 export type InvestmentResult = {
     totalInvestment: number
     totalValue: number

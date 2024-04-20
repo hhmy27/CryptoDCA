@@ -4,19 +4,12 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
 import {FrequencySelector} from './FrequencySelector'
-import {InvestmentAllocation} from '@/types/investment'
-import {InvestmentTarget} from '@/ui/InvestmentTarget'
+import {InvestmentAllocation, InvestmentFormProps} from '@/types/investment'
+import {InvestmentTarget} from '@/components/InvestmentTarget'
 import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 import {Cryptocurrency} from '@/types/investment'
 
-export const InvestmentForm = () => {
-    const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
-        investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
-        frequencyConfig: {frequency: 'daily'},
-        startDate: new Date(),
-        investmentAmount: 0,
-        isOverLimit: false
-    })
+export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig, setInvestmentConfig, submitted, setSubmitted}) => {
     const handleInvestmentAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.value !== '' && isNaN(Number(event.target.value))) {
             return
@@ -28,7 +21,6 @@ export const InvestmentForm = () => {
 
     const [totalPercentage, setTotalPercentage] = useState<number>(100)
     const [dateSelected, setDateSelected] = useState(false)
-    const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
     const [selectedCurrencies, setSelectedCurrencies] = useState<Map<string, Cryptocurrency>>(
         new Map([[investmentConfig.investmentTargets[0].currency, supportedCryptocurrencies[investmentConfig.investmentTargets[0].currency]]])
     )
@@ -108,7 +100,6 @@ export const InvestmentForm = () => {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        setHasAttemptedSubmit(true)
 
         if (investmentConfig.isOverLimit || totalPercentage < 100) {
             console.error('Total investment percentage should be exactly 100%')
@@ -121,7 +112,7 @@ export const InvestmentForm = () => {
         }
 
         setInvestmentConfig(newConfig)
-        console.log(newConfig)
+        setSubmitted(true)
     }
 
     return (
@@ -158,8 +149,8 @@ export const InvestmentForm = () => {
                 </div>
 
                 {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
-                {hasAttemptedSubmit && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
-                {hasAttemptedSubmit && investmentConfig.investmentAmount <= 0 && <Note type="error">Investment amount should be greater than 0</Note>}
+                {submitted && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
+                {submitted && investmentConfig.investmentAmount <= 0 && <Note type="error">Investment amount should be greater than 0</Note>}
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Start Date</label>
