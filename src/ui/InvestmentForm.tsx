@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, FormEvent} from 'react'
+import React, {useState, useEffect, ChangeEvent, FormEvent} from 'react'
 import {Select, Input, Button, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -7,10 +7,11 @@ import {FrequencySelector} from './FrequencySelector'
 import {InvestmentAllocation} from '@/types/investment'
 import {InvestmentTarget} from '@/ui/InvestmentTarget'
 import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
+import {Cryptocurrency} from '@/types/investment'
 
 export const InvestmentForm = () => {
     const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
-        investmentTargets: [{currency: 'BTC-USD', percentage: 0}],
+        investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
         frequencyConfig: {frequency: 'daily'},
         startDate: new Date(),
         investmentAmount: 0,
@@ -27,7 +28,22 @@ export const InvestmentForm = () => {
 
     const [totalPercentage, setTotalPercentage] = useState<number>(0)
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false)
-    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<number, string>>(new Map([[0, Object.keys(supportedCryptocurrencies)[0]]]))
+    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<string, Cryptocurrency>>(
+        new Map([[investmentConfig.investmentTargets[0].currency, supportedCryptocurrencies[investmentConfig.investmentTargets[0].currency]]])
+    )
+
+    const [latestStartDate, setLatestStartDate] = useState<Date>(new Date(supportedCryptocurrencies['BTC-USD'].startDate))
+    useEffect(() => {
+        let latest = new Date(0) // set to the earliest possible date
+        console.log(selectedCurrencies.values())
+        Array.from(selectedCurrencies.values()).forEach((currency) => {
+            const startDate = new Date(currency.startDate)
+            if (startDate > latest) {
+                latest = startDate
+            }
+        })
+        setLatestStartDate(latest)
+    }, [selectedCurrencies])
 
     const distributePercentageEqually = (newConfig: InvestmentConfig) => {
         const targetCount = newConfig.investmentTargets.length
@@ -47,7 +63,7 @@ export const InvestmentForm = () => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets[index].currency = value
         setInvestmentConfig(newConfig)
-        setSelectedCurrencies(new Map(selectedCurrencies.set(index, value)))
+        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets[index].currency, supportedCryptocurrencies[value])))
 
         distributePercentageEqually(newConfig)
         setInvestmentConfig(newConfig)
@@ -55,10 +71,10 @@ export const InvestmentForm = () => {
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !Array.from(selectedCurrencies.values()).includes(currency))
+        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !Array.from(selectedCurrencies.keys()).includes(currency))
         const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
         newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
-        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets.length, newCurrency)))
+        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets[newConfig.investmentTargets.length - 1].currency, supportedCryptocurrencies[newCurrency])))
 
         distributePercentageEqually(newConfig)
         setInvestmentConfig(newConfig)
@@ -79,9 +95,10 @@ export const InvestmentForm = () => {
         if (investmentConfig.investmentTargets.length === 1) return
 
         const newConfig = {...investmentConfig}
+        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
-        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== index)))
+        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== removedCurrency)))
 
         const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
         newConfig.isOverLimit = newTotalPercentage > 100
@@ -137,7 +154,11 @@ export const InvestmentForm = () => {
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Start Date</label>
-                    <DatePicker selected={investmentConfig.startDate} onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})} />
+                    <DatePicker
+                        selected={latestStartDate}
+                        minDate={latestStartDate}
+                        onChange={(date) => setInvestmentConfig({...investmentConfig, startDate: date || new Date()})}
+                    />{' '}
                 </div>
 
                 <div>

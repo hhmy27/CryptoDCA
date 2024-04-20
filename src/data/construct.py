@@ -23,6 +23,8 @@ ycryptos = ['BTC-USD', 'ETH-USD', 'USDT-USD', 'BNB-USD', 'SOL-USD', 'USDC-USD', 
             'ATOM-USD', 'RNDR-USD', 'TAO22974-USD', 'ARB11841-USD', 'IMX10603-USD', 'HBAR-USD', 'VET-USD', 'WHBAR-USD',
             'WIF-USD', 'WBETH-USD', 'MKR-USD', 'KAS-USD', 'INJ-USD', 'GRT6719-USD']
 
+filter_cryptos = ['USDT-USD', 'USDC-USD', 'STETH-USD', 'WBTC-USD', 'WTRX-USD', 'FDUSD-USD', 'BTCB-USD', 'WBETH-USD', 'WHBAR-USD']
+
 # 获取 CoinGecko 的前 50 个加密货币，以及它们的市值和市值排名
 coingecko_cryptos = get_top_cryptos(50)
 
@@ -30,9 +32,18 @@ coingecko_cryptos = get_top_cryptos(50)
 ticker_map = dict(zip(ycryptos, coingecko_cryptos.items()))
 
 # 输出 JavaScript 对象
-print('export const supportedCryptocurrencies = {')
+print('''
+interface Cryptocurrency {
+    startDate: string
+    marketCap: number
+    marketCapRank: number
+    icon: string
+}
+''')
+print('export const supportedCryptocurrencies:Record<string, Cryptocurrency> = {')
+
 for key, value in ticker_map.items():
-    if key in ('USDT-USD', 'USDC-USD'):
+    if key in filter_cryptos:
         continue
     start_date = get_start_date(f"./prices/{key}.csv")
     print(f"  '{key}': {{")

@@ -35,7 +35,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
         onCurrencyChange(index, value)
         setSelectedCurrencies((prevSelectedCurrencies) => {
             const newSelectedCurrencies = new Map(prevSelectedCurrencies)
-            newSelectedCurrencies.set(index, value)
+            newSelectedCurrencies.set(value, supportedCryptocurrencies[value])
             return newSelectedCurrencies
         })
     }
@@ -48,7 +48,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
                     const isSelected = selectedCurrencies.includes(crypto)
                     return (
                         <Select.Option key={crypto} value={crypto} disabled={isSelected && crypto !== target.currency}>
-                            {isSelected } {crypto}
+                            {crypto}
                         </Select.Option>
                     )
                 })}

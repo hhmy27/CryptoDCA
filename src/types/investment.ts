@@ -7,6 +7,13 @@ export type FrequencyConfig = {
     dayOfMonth?: number
 }
 
+export interface Cryptocurrency {
+    startDate: string
+    marketCap: number
+    marketCapRank: number
+    icon: string
+}
+
 export type InvestmentConfig = {
     investmentTargets: InvestmentAllocation[]
     frequencyConfig: FrequencyConfig
@@ -24,7 +31,7 @@ export interface InvestmentTargetProps {
     target: InvestmentAllocation
     index: number
     selectedCurrencies: string[]
-    setSelectedCurrencies: React.Dispatch<React.SetStateAction<Map<number, string>>>
+    setSelectedCurrencies: React.Dispatch<React.SetStateAction<Map<string, Cryptocurrency>>>
     onCurrencyChange: (index: number, currency: string) => void
     onPercentageChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void
     onRemoveTarget: (index: number) => void
