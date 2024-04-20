@@ -55,8 +55,8 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
     }
 
     const handleCurrencyChange = (index: number, value: string) => {
-        const newConfig = {...investmentConfig}
-        newConfig.investmentTargets[index].currency = value
+        const newConfig = {...investmentConfig, investmentTargets: [...investmentConfig.investmentTargets]}
+        newConfig.investmentTargets[index] = {...newConfig.investmentTargets[index], currency: value}
         setInvestmentConfig(newConfig)
         setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets[index].currency, supportedCryptocurrencies[value])))
 
@@ -90,10 +90,10 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
         if (investmentConfig.investmentTargets.length === 1) return
 
         const newConfig = {...investmentConfig}
+        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
-        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== newConfig.investmentTargets[index].currency)))
-
+        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== removedCurrency)))
         const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
         newConfig.isOverLimit = newTotalPercentage > 100
         setTotalPercentage(newTotalPercentage)
