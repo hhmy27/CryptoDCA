@@ -1,5 +1,7 @@
 import {Cryptocurrency} from '@/types/investment'
 
+export const endDate = new Date('2024-04-19')
+
 export const supportedCryptocurrencies: Record<string, Cryptocurrency> = {
     'BTC-USD': {
         startDate: '2014-09-17',

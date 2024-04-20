@@ -7,6 +7,23 @@ export type FrequencyConfig = {
     dayOfMonth?: number
 }
 
+export type InvestmentResult = {
+    totalInvestment: number
+    totalValue: number
+    totalReturn: number
+    annualizedReturn: number
+}
+
+export type PriceDataResult = {
+    allData: PriceData[]
+    filteredData: PriceData[]
+}
+
+export type PriceData = {
+    date: Date
+    close: number
+}
+
 export interface Cryptocurrency {
     startDate: string
     marketCap: number
