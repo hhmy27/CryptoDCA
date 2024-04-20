@@ -1,4 +1,4 @@
-import React, {useState, useEffect, ChangeEvent, FormEvent} from 'react'
+import React, {useState, useRef, useEffect, ChangeEvent, FormEvent} from 'react'
 import {Select, Input, Button, Text, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -19,12 +19,18 @@ export const InvestmentDashboard = () => {
         investmentAmount: 0,
         isOverLimit: false
     })
+    const submittedConfigRef = useRef<InvestmentConfig>(investmentConfig)
     const [submitted, setSubmitted] = useState(false)
+
+    const handleSubmit = () => {
+        submittedConfigRef.current = investmentConfig
+        setSubmitted(true)
+    }
 
     return (
         <div>
-            <InvestmentForm investmentConfig={investmentConfig} setInvestmentConfig={setInvestmentConfig} submitted={submitted} setSubmitted={setSubmitted} />
-            <Chart></Chart>
+            <InvestmentForm investmentConfig={investmentConfig} setInvestmentConfig={setInvestmentConfig} submitted={submitted} handleSubmit={handleSubmit} />
+            {submitted && <Chart investmentConfig={submittedConfigRef.current} />}
         </div>
     )
 }

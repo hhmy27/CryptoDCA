@@ -11,8 +11,7 @@ export type InvestmentFormProps = {
     investmentConfig: InvestmentConfig
     setInvestmentConfig: React.Dispatch<React.SetStateAction<InvestmentConfig>>
     submitted: boolean
-    setSubmitted: React.Dispatch<React.SetStateAction<boolean>>
-
+    handleSubmit: () => void
 }
 
 export type InvestmentData = {

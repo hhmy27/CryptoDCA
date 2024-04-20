@@ -9,7 +9,7 @@ import {InvestmentTarget} from '@/components/InvestmentTarget'
 import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 import {Cryptocurrency} from '@/types/investment'
 
-export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig, setInvestmentConfig, submitted, setSubmitted}) => {
+export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig, setInvestmentConfig, submitted, handleSubmit}) => {
     const handleInvestmentAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.value !== '' && isNaN(Number(event.target.value))) {
             return
@@ -19,6 +19,7 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
         setInvestmentConfig(newConfig)
     }
 
+    const [errors, setErrors] = useState<string[]>([])
     const [totalPercentage, setTotalPercentage] = useState<number>(100)
     const [dateSelected, setDateSelected] = useState(false)
     const [selectedCurrencies, setSelectedCurrencies] = useState<Map<string, Cryptocurrency>>(
@@ -98,11 +99,25 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
         setTotalPercentage(newTotalPercentage)
     }
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleFormSubmit = (e: FormEvent) => {
         e.preventDefault()
 
+        let newErrors: string[] = []
+
         if (investmentConfig.isOverLimit || totalPercentage < 100) {
-            console.error('Total investment percentage should be exactly 100%')
+            newErrors.push('Total investment percentage should be exactly 100%')
+        }
+
+        if (investmentConfig.investmentAmount <= 0) {
+            newErrors.push('Investment amount should be greater than 0')
+        }
+
+        if (investmentConfig.investmentTargets.length === 0) {
+            newErrors.push('Investment targets should not be empty')
+        }
+
+        if (newErrors.length > 0) {
+            setErrors(newErrors)
             return
         }
 
@@ -112,13 +127,13 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
         }
 
         setInvestmentConfig(newConfig)
-        setSubmitted(true)
+        handleSubmit()
     }
 
     return (
         <div className="m-4">
             <h1 className="text-2xl font-bold mb-4">Investment Form</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-4">
                 <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
                 {investmentConfig.investmentTargets.map((target, index) => (
                     <div key={index}>
@@ -168,6 +183,12 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
                     <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
                     <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
                 </div>
+
+                {errors.map((error, i) => (
+                    <Note key={i} type="error">
+                        {error}
+                    </Note>
+                ))}
 
                 <div>
                     <Button type="success" htmlType="submit">
