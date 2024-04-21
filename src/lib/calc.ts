@@ -1,7 +1,7 @@
 import {FrequencyConfig, PriceDataResult, PriceData, InvestmentData} from '@/types/investment'
 import Papa from 'papaparse'
-
 function calculateInvestmentData(priceData: PriceData[], investmentAmount: number): InvestmentData[] {
+    console.log('priceData:', priceData, 'investmentAmount:', investmentAmount)
     const results: InvestmentData[] = []
     let totalInvestment = 0
     let totalShares = 0
@@ -28,65 +28,88 @@ function calculateInvestmentData(priceData: PriceData[], investmentAmount: numbe
 }
 
 function readPriceData(csvFilePath: string, startDate: Date, endDate: Date, frequencyConfig: FrequencyConfig): Promise<PriceDataResult> {
-    return new Promise((resolve, reject) => {
-        Papa.parse(csvFilePath, {
-            download: true,
-            header: true,
-            dynamicTyping: true,
-            complete: (results) => {
-                if (results.errors.length > 0) {
-                    reject(results.errors)
-                    return
-                }
-
-                const priceData: PriceData[] = results.data
-                    .map((row: any) => ({
-                        date: new Date(row.Date),
-                        close: row.Close
-                    }))
-                    .filter((data: PriceData) => data.date >= startDate && data.date <= endDate)
-                    .sort((a: PriceData, b: PriceData) => a.date.getTime() - b.date.getTime())
-
-                const filteredPriceData: PriceData[] = []
-
-                // Calculate the initial investment date based on the frequency and the specific day
-                let nextInvestmentDate = new Date(startDate)
-                if (frequencyConfig.frequency === 'weekly' && frequencyConfig.dayOfWeek) {
-                    while (nextInvestmentDate.getDay() !== frequencyConfig.dayOfWeek) {
-                        nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 1)
-                    }
-                } else if (frequencyConfig.frequency === 'monthly' && frequencyConfig.dayOfMonth) {
-                    nextInvestmentDate.setDate(frequencyConfig.dayOfMonth)
-                }
-
-                for (const data of priceData) {
-                    if (data.date < nextInvestmentDate) {
-                        continue
-                    }
-
-                    filteredPriceData.push(data)
-
-                    // Calculate the next investment date
-                    switch (frequencyConfig.frequency) {
-                        case 'daily':
-                            nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 1)
-                            break
-                        case 'weekly':
-                            nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 7)
-                            break
-                        case 'monthly':
-                            nextInvestmentDate.setMonth(nextInvestmentDate.getMonth() + 1)
-                            break
-                    }
-                }
-
-                resolve({
-                    allData: priceData,
-                    filteredData: filteredPriceData
-                })
+    console.log('csvFilePath:', csvFilePath, 'startDate:', startDate, 'endDate:', endDate, 'frequencyConfig:', frequencyConfig)
+    return fetch(csvFilePath)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
             }
+            return response.text()
         })
-    })
+        .then((csvData) => {
+            csvData = csvData.trim()
+            console.log('csvData:', csvData)
+            return new Promise<PriceDataResult>((resolve, reject) => {
+                // Specify the return type as Promise<PriceDataResult>
+                Papa.parse(csvData, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: (results) => {
+                        if (results.errors.length > 0) {
+                            console.error('Papa parse errors:', results.errors)
+                            reject(results.errors)
+                            return
+                        }
+
+                        const priceData: PriceData[] = results.data
+                            .map((row: any) => ({
+                                date: new Date(row.Date),
+                                close: row.Close
+                            }))
+                            .filter((data: PriceData) => data.date >= startDate && data.date <= endDate)
+                            .sort((a: PriceData, b: PriceData) => a.date.getTime() - b.date.getTime())
+
+                        console.log('priceData:', priceData)
+
+                        const filteredPriceData: PriceData[] = []
+
+                        let nextInvestmentDate = new Date(startDate)
+                        if (frequencyConfig.frequency === 'weekly' && frequencyConfig.dayOfWeek) {
+                            while (nextInvestmentDate.getDay() !== frequencyConfig.dayOfWeek) {
+                                nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 1)
+                            }
+                        } else if (frequencyConfig.frequency === 'monthly' && frequencyConfig.dayOfMonth) {
+                            nextInvestmentDate.setDate(frequencyConfig.dayOfMonth)
+                        }
+
+                        for (const data of priceData) {
+                            if (data.date < nextInvestmentDate) {
+                                continue
+                            }
+
+                            filteredPriceData.push(data)
+
+                            switch (frequencyConfig.frequency) {
+                                case 'daily':
+                                    nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 1)
+                                    break
+                                case 'weekly':
+                                    nextInvestmentDate.setDate(nextInvestmentDate.getDate() + 7)
+                                    break
+                                case 'monthly':
+                                    nextInvestmentDate.setMonth(nextInvestmentDate.getMonth() + 1)
+                                    break
+                            }
+                        }
+
+                        console.log('filteredPriceData:', filteredPriceData)
+
+                        resolve({
+                            allData: priceData,
+                            filteredData: filteredPriceData
+                        })
+                    },
+                    error: (err) => {
+                        console.error('Papa parse error:', err)
+                        reject(err)
+                    }
+                })
+            })
+        })
+        .catch((err) => {
+            console.error('Error in readPriceData:', err)
+            throw err
+        })
 }
 
 export function calculateMultipleInvestments(

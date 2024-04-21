@@ -21,6 +21,13 @@ export type InvestmentData = {
     profitRate: number
     holdingCost: number
 }
+export type PortfolioStats = {
+    currentTotalValue: number
+    totalInvestment: number
+    currentProfit: number
+    profitRate: number
+    holdingCost: number
+}
 
 export type InvestmentResult = {
     totalInvestment: number
