@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import {InvestmentConfig, InvestmentData, PorfolioStats} from '@/types/investment'
 import {calculateMultipleInvestments} from '@/lib/calc'
 import {endDate} from '@/lib/config'
-export const Chart: React.FC<{investmentConfig: InvestmentConfig; update: number}> = ({investmentConfig, update}) => {
+export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmentConfig}) => {
     const [investmentDataByCurrency, setInvestmentDataByCurrency] = useState<{[key: string]: InvestmentData[]}>({})
     const [portfolioStats, setPortfolioStats] = useState<PortfolioStats>({currentTotalValue: 0, totalInvestment: 0, currentProfit: 0, profitRate: 0})
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -53,7 +53,7 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig; update: number
                 console.error(err)
                 setIsLoading(false)
             })
-    }, [update])
+    }, [investmentConfig])
 
     return (
         <div>

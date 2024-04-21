@@ -22,18 +22,15 @@ export const InvestmentDashboard = () => {
     const submittedConfigRef = useRef<InvestmentConfig>(investmentConfig)
     const [submitted, setSubmitted] = useState(false)
 
-    const [update, setUpdate] = useState(0) // Add a new state
-
     const handleSubmit = () => {
         submittedConfigRef.current = investmentConfig
         setSubmitted(true)
-        setUpdate(update + 1)
     }
 
     return (
         <div>
             <InvestmentForm investmentConfig={investmentConfig} setInvestmentConfig={setInvestmentConfig} submitted={submitted} handleSubmit={handleSubmit} />
-            {submitted && <Chart investmentConfig={submittedConfigRef.current} update={update} />}
+            {submitted && <Chart investmentConfig={submittedConfigRef.current} />}
         </div>
     )
 }
