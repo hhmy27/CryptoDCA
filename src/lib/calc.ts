@@ -118,8 +118,12 @@ export function calculateMultipleInvestments(
     endDate: Date,
     frequencyConfig: FrequencyConfig,
     investmentAmount: number
-): Promise<InvestmentData[]> {
+): Promise<{priceData: PriceData[]; investmentData: InvestmentData[]}> {
     return readPriceData(csvFilePath, startDate, endDate, frequencyConfig).then((priceDataResult) => {
-        return calculateInvestmentData(priceDataResult.filteredData, investmentAmount)
+        const investmentData = calculateInvestmentData(priceDataResult.filteredData, investmentAmount)
+        return {
+            priceData: priceDataResult.filteredData,
+            investmentData
+        }
     })
 }

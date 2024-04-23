@@ -37,10 +37,10 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                 let currentTotalValue = 0
                 let totalInvestment = 0
                 Object.values(newInvestmentDataByCurrency).forEach((investmentData) => {
-                    investmentData.forEach((data) => {
-                        currentTotalValue += data.currentTotalValue
-                        totalInvestment += data.totalInvestment
-                    })
+                    // Only take the last investment data
+                    const lastInvestmentData = investmentData[investmentData.length - 1]
+                    currentTotalValue += lastInvestmentData.currentTotalValue
+                    totalInvestment += lastInvestmentData.totalInvestment
                 })
                 const currentProfit = currentTotalValue - totalInvestment
                 const profitRate = currentProfit / totalInvestment
