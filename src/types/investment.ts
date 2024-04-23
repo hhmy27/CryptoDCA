@@ -15,6 +15,7 @@ export type InvestmentFormProps = {
 }
 
 export type InvestmentData = {
+    date: Date
     currentTotalValue: number
     totalInvestment: number
     currentProfit: number

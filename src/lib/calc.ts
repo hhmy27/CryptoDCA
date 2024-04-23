@@ -10,12 +10,14 @@ function calculateInvestmentData(priceData: PriceData[], investmentAmount: numbe
         totalInvestment += investmentAmount
         totalShares += investmentAmount / data.close
 
+        const date = data.date
         const currentTotalValue = totalShares * data.close
         const currentProfit = currentTotalValue - totalInvestment
         const profitRate = currentProfit / totalInvestment
         const holdingCost = totalInvestment / totalShares
 
         results.push({
+            date,
             currentTotalValue,
             totalInvestment,
             currentProfit,

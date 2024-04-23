@@ -32,7 +32,6 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                 dataArrays.forEach((data, index) => {
                     newInvestmentDataByCurrency[investmentConfig.investmentTargets[index].currency] = data
                 })
-                setInvestmentDataByCurrency(newInvestmentDataByCurrency)
 
                 let currentTotalValue = 0
                 let totalInvestment = 0
@@ -47,6 +46,7 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                 console.log('investmentDataByCurrency', investmentDataByCurrency)
                 console.log({currentTotalValue, totalInvestment, currentProfit, profitRate})
                 setPortfolioStats({currentTotalValue, totalInvestment, currentProfit, profitRate})
+                setInvestmentDataByCurrency(newInvestmentDataByCurrency)
                 setIsLoading(false)
             })
             .catch((err) => {
