@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import * as yup from 'yup'
 import {ChangeEvent, createContext} from 'react'
 import {create} from 'zustand'
@@ -64,15 +66,13 @@ export type InvestmentConfig = {
 }
 type Store = {
     investmentConfig: InvestmentConfig
-    submitted: boolean
-    errors: string[]
+    snapshotConfig: InvestmentConfig
     setInvestmentConfig: (config: InvestmentConfig) => void
+    submitted: boolean
     setSubmitted: (value: boolean) => void
-    setErrors: (errors: string[]) => void
-    submit: (formValidated: boolean) => void
 }
 
-export const useInvestmentStore = create<Store>((set) => ({
+export const useInvestmentStore = create<Store>((set, get) => ({
     investmentConfig: {
         investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
         frequencyConfig: {frequency: 'daily'},
@@ -80,12 +80,24 @@ export const useInvestmentStore = create<Store>((set) => ({
         investmentAmount: 0,
         isOverLimit: false
     },
+    snapshotConfig: {
+        investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
+        frequencyConfig: {frequency: 'daily'},
+        startDate: new Date(),
+        investmentAmount: 0,
+        isOverLimit: false
+    },
     submitted: false,
-    errors: [],
     setInvestmentConfig: (config) => set({investmentConfig: config}),
-    setSubmitted: (value) => set({submitted: value}),
-    setErrors: (errors) => set({errors}),
-    submit: (formValidated: boolean) => set(() => ({submitted: true}))
+    setSubmitted: (value) => {
+        const state = get()
+        if (value && !_.isEqual(state.investmentConfig, state.snapshotConfig)) {
+            // calculateConfig();
+            set({submitted: value, snapshotConfig: state.investmentConfig})
+        } else {
+            set({submitted: value})
+        }
+    }
 }))
 
 export interface InvestmentAllocation {

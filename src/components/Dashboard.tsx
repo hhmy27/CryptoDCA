@@ -14,7 +14,7 @@ import {Chart} from '@/components/Chart'
 import {useInvestmentStore} from '@/types/investment'
 
 export const InvestmentDashboard = () => {
-    const {investmentConfig, submitted, formValidated, setInvestmentConfig, submit} = useInvestmentStore()
+    const {investmentConfig, submitted, formValidated, setInvestmentConfig, setSubmit: submit} = useInvestmentStore()
 
     return (
         <div>

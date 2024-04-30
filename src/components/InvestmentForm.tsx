@@ -11,15 +11,16 @@ import {Cryptocurrency} from '@/types/investment'
 import {useInvestmentStore} from '@/types/investment'
 
 export const InvestmentForm: React.FC = () => {
-    const {investmentConfig, setInvestmentConfig, submit, submitted, errors, setErrors} = useInvestmentStore()
+    const [errors, setErrors] = useState<string[]>([])
+    const {investmentConfig, setInvestmentConfig, setSubmitted} = useInvestmentStore()
 
-    const handleCurrencyChange = (currency: string, index: number) => {
+    const handleCurrencyChange = (index: number, currency: string) => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets[index].currency = currency
         setInvestmentConfig(newConfig)
     }
 
-    const handlePercentageChange = (percentage: number, index: number) => {
+    const handlePercentageChange = (index: number, percentage: number) => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets[index].percentage = percentage
         setInvestmentConfig(newConfig)
@@ -63,11 +64,11 @@ export const InvestmentForm: React.FC = () => {
 
         setErrors(newErrors)
         if (newErrors.length > 0) {
-            submit(false)
+            setSubmitted(false)
             return
         }
 
-        submit(true)
+        setSubmitted(true)
     }
     return (
         <div className="m-4">
