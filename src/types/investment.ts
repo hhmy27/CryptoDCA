@@ -92,7 +92,6 @@ export const useInvestmentStore = create<Store>((set, get) => ({
     setSubmitted: (value) => {
         const state = get()
         if (value && !_.isEqual(state.investmentConfig, state.snapshotConfig)) {
-            // calculateConfig();
             set({submitted: value, snapshotConfig: state.investmentConfig})
         } else {
             set({submitted: value})
@@ -108,10 +107,9 @@ export interface InvestmentAllocation {
 export interface InvestmentTargetProps {
     target: InvestmentAllocation
     index: number
-    selectedCurrencies: string[]
-    setSelectedCurrencies: React.Dispatch<React.SetStateAction<Map<string, Cryptocurrency>>>
+    currencySet: Set<string>
     onCurrencyChange: (index: number, currency: string) => void
-    onPercentageChange: (index: number, e: React.ChangeEvent<HTMLInputElement>) => void
+    onPercentageChange: (index: number, percentage: number) => void
     onRemoveTarget: (index: number) => void
 }
 

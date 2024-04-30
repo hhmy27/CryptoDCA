@@ -12,12 +12,32 @@ import {useInvestmentStore} from '@/types/investment'
 
 export const InvestmentForm: React.FC = () => {
     const [errors, setErrors] = useState<string[]>([])
+
     const {investmentConfig, setInvestmentConfig, setSubmitted} = useInvestmentStore()
+
+    const totalPercentage = investmentConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
+    const selectedCurrencies = investmentConfig.investmentTargets.map((target) => target.currency)
+    const currencySet = new Set(investmentConfig.investmentTargets.map((a) => a.currency))
+
+    const distributePercentageEqually = () => {
+        const targetCount = investmentConfig.investmentTargets.length
+        const equalPercentage = Math.floor(100 / targetCount)
+        const remainder = 100 - equalPercentage * (targetCount - 1)
+
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets.forEach((target, index) => {
+            target.percentage = index === targetCount - 1 ? remainder : equalPercentage
+        })
+
+        setInvestmentConfig(newConfig)
+    }
 
     const handleCurrencyChange = (index: number, currency: string) => {
         const newConfig = {...investmentConfig}
         newConfig.investmentTargets[index].currency = currency
         setInvestmentConfig(newConfig)
+
+        distributePercentageEqually()
     }
 
     const handlePercentageChange = (index: number, percentage: number) => {
@@ -28,14 +48,21 @@ export const InvestmentForm: React.FC = () => {
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        newConfig.investmentTargets.push({currency: 'BTC-USD', percentage: 0})
+        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !selectedCurrencies.includes(currency))
+        const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
+        newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
         setInvestmentConfig(newConfig)
+
+        distributePercentageEqually()
     }
 
     const handleRemoveTarget = (index: number) => {
         const newConfig = {...investmentConfig}
+        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
+
+        distributePercentageEqually()
     }
 
     const handleInvestmentAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,8 +83,6 @@ export const InvestmentForm: React.FC = () => {
             newErrors.push('Investment targets should not be empty')
         }
 
-        const totalPercentage = investmentConfig.investmentTargets.reduce((sum, target) => sum + target.percentage, 0)
-
         if (totalPercentage !== 100) {
             newErrors.push('Total investment percentage should be exactly 100%')
         }
@@ -74,11 +99,13 @@ export const InvestmentForm: React.FC = () => {
         <div className="m-4">
             <h1 className="text-2xl font-bold mb-4">Investment Form</h1>
             <form onSubmit={handleFormSubmit} className="space-y-4">
+                <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
                 {investmentConfig.investmentTargets.map((target, index) => (
                     <div key={index}>
                         <InvestmentTarget
                             target={target}
                             index={index}
+                            currencySet={currencySet}
                             onCurrencyChange={handleCurrencyChange}
                             onPercentageChange={handlePercentageChange}
                             onRemoveTarget={handleRemoveTarget}

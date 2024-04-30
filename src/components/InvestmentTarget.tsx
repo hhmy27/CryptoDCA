@@ -4,17 +4,10 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
 import {InvestmentTargetProps} from '@/types/investment'
+import {useInvestmentStore} from '@/types/investment'
 import dynamic from 'next/dynamic'
 
-export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
-    target,
-    index,
-    selectedCurrencies,
-    setSelectedCurrencies,
-    onCurrencyChange,
-    onPercentageChange,
-    onRemoveTarget
-}) => {
+export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({target, index, currencySet, onCurrencyChange, onPercentageChange, onRemoveTarget}) => {
     const [sortedCryptos, setSortedCryptos] = useState([])
 
     useEffect(() => {
@@ -25,19 +18,14 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
     }, [])
 
     const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Don't allow non-numeric input
         if (e.target.value !== '' && isNaN(Number(e.target.value))) {
             return
         }
         onPercentageChange(index, e)
     }
+
     const handleSelectChange = (value: string) => {
         onCurrencyChange(index, value)
-        setSelectedCurrencies((prevSelectedCurrencies) => {
-            const newSelectedCurrencies = new Map(prevSelectedCurrencies)
-            newSelectedCurrencies.set(value, supportedCryptocurrencies[value])
-            return newSelectedCurrencies
-        })
     }
 
     return (
@@ -45,7 +33,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({
             <Text h4>Investment target {index + 1}</Text>
             <Select value={target.currency} onChange={handleSelectChange}>
                 {sortedCryptos.map((crypto) => {
-                    const isSelected = selectedCurrencies.includes(crypto)
+                    const isSelected = currencySet.has(crypto)
                     return (
                         <Select.Option key={crypto} value={crypto} disabled={isSelected && crypto !== target.currency}>
                             {crypto}
