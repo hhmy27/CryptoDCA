@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import {ChangeEvent, createContext} from 'react'
+import {create} from 'zustand'
 
 export type FrequencyConfig = {
     frequency: 'daily' | 'weekly' | 'monthly'
@@ -61,6 +62,31 @@ export type InvestmentConfig = {
     investmentAmount: number
     isOverLimit: boolean
 }
+type Store = {
+    investmentConfig: InvestmentConfig
+    submitted: boolean
+    errors: string[]
+    setInvestmentConfig: (config: InvestmentConfig) => void
+    setSubmitted: (value: boolean) => void
+    setErrors: (errors: string[]) => void
+    submit: (formValidated: boolean) => void
+}
+
+export const useInvestmentStore = create<Store>((set) => ({
+    investmentConfig: {
+        investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
+        frequencyConfig: {frequency: 'daily'},
+        startDate: new Date(),
+        investmentAmount: 0,
+        isOverLimit: false
+    },
+    submitted: false,
+    errors: [],
+    setInvestmentConfig: (config) => set({investmentConfig: config}),
+    setSubmitted: (value) => set({submitted: value}),
+    setErrors: (errors) => set({errors}),
+    submit: (formValidated: boolean) => set(() => ({submitted: true}))
+}))
 
 export interface InvestmentAllocation {
     currency: string

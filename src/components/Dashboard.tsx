@@ -11,26 +11,15 @@ import {Cryptocurrency} from '@/types/investment'
 import {InvestmentForm} from '@/components/InvestmentForm'
 import {Chart} from '@/components/Chart'
 
-export const InvestmentDashboard = () => {
-    const [investmentConfig, setInvestmentConfig] = useState<InvestmentConfig>({
-        investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
-        frequencyConfig: {frequency: 'daily'},
-        startDate: new Date(),
-        investmentAmount: 0,
-        isOverLimit: false
-    })
-    const submittedConfigRef = useRef<InvestmentConfig>(investmentConfig)
-    const [submitted, setSubmitted] = useState(false)
+import {useInvestmentStore} from '@/types/investment'
 
-    const handleSubmit = () => {
-        submittedConfigRef.current = investmentConfig
-        setSubmitted(true)
-    }
+export const InvestmentDashboard = () => {
+    const {investmentConfig, submitted, formValidated, setInvestmentConfig, submit} = useInvestmentStore()
 
     return (
         <div>
-            <InvestmentForm investmentConfig={investmentConfig} setInvestmentConfig={setInvestmentConfig} submitted={submitted} handleSubmit={handleSubmit} />
-            {submitted && <Chart investmentConfig={submittedConfigRef.current} />}
+            <InvestmentForm investmentConfig={investmentConfig} setInvestmentConfig={setInvestmentConfig} submitted={submitted} handleSubmit={submit} />
+            {submitted && formValidated && <Chart investmentConfig={investmentConfig} />}
         </div>
     )
 }

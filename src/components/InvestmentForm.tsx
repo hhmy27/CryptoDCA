@@ -8,103 +8,44 @@ import {InvestmentAllocation, InvestmentFormProps} from '@/types/investment'
 import {InvestmentTarget} from '@/components/InvestmentTarget'
 import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
 import {Cryptocurrency} from '@/types/investment'
+import {useInvestmentStore} from '@/types/investment'
 
-export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig, setInvestmentConfig, submitted, handleSubmit}) => {
-    const handleInvestmentAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value !== '' && isNaN(Number(event.target.value))) {
-            return
-        }
+export const InvestmentForm: React.FC = () => {
+    const {investmentConfig, setInvestmentConfig, submit, submitted, errors, setErrors} = useInvestmentStore()
+
+    const handleCurrencyChange = (currency: string, index: number) => {
         const newConfig = {...investmentConfig}
-        newConfig.investmentAmount = Number(event.target.value)
+        newConfig.investmentTargets[index].currency = currency
         setInvestmentConfig(newConfig)
     }
 
-    const [errors, setErrors] = useState<string[]>([])
-    const [totalPercentage, setTotalPercentage] = useState<number>(100)
-    const [dateSelected, setDateSelected] = useState(false)
-    const [selectedCurrencies, setSelectedCurrencies] = useState<Map<string, Cryptocurrency>>(
-        new Map([[investmentConfig.investmentTargets[0].currency, supportedCryptocurrencies[investmentConfig.investmentTargets[0].currency]]])
-    )
-
-    const [latestStartDate, setLatestStartDate] = useState<Date>(new Date(supportedCryptocurrencies['BTC-USD'].startDate))
-    useEffect(() => {
-        let latest = new Date(0) // set to the earliest possible date
-        console.log(selectedCurrencies.values())
-        Array.from(selectedCurrencies.values()).forEach((currency) => {
-            const startDate = new Date(currency.startDate)
-            if (startDate > latest) {
-                latest = startDate
-            }
-        })
-        setLatestStartDate(latest)
-        console.log('latest start date:', latest)
-    }, [selectedCurrencies])
-
-    const distributePercentageEqually = (newConfig: InvestmentConfig) => {
-        const targetCount = newConfig.investmentTargets.length
-        const equalPercentage = Math.floor(100 / targetCount)
-        const remainder = 100 - equalPercentage * (targetCount - 1)
-
-        newConfig.investmentTargets.forEach((target, index) => {
-            target.percentage = index === targetCount - 1 ? remainder : equalPercentage
-        })
-
-        const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
-        newConfig.isOverLimit = newTotalPercentage > 100
-        setTotalPercentage(newTotalPercentage)
-    }
-
-    const handleCurrencyChange = (index: number, value: string) => {
-        const newConfig = {...investmentConfig, investmentTargets: [...investmentConfig.investmentTargets]}
-        newConfig.investmentTargets[index] = {...newConfig.investmentTargets[index], currency: value}
-        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets[index].currency, supportedCryptocurrencies[value])))
-
-        distributePercentageEqually(newConfig)
+    const handlePercentageChange = (percentage: number, index: number) => {
+        const newConfig = {...investmentConfig}
+        newConfig.investmentTargets[index].percentage = percentage
         setInvestmentConfig(newConfig)
     }
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !Array.from(selectedCurrencies.keys()).includes(currency))
-        const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
-        newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
-        setSelectedCurrencies(new Map(selectedCurrencies.set(newConfig.investmentTargets[newConfig.investmentTargets.length - 1].currency, supportedCryptocurrencies[newCurrency])))
-
-        distributePercentageEqually(newConfig)
+        newConfig.investmentTargets.push({currency: 'BTC-USD', percentage: 0})
         setInvestmentConfig(newConfig)
-    }
-
-    const handlePercentageChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
-        const newConfig = {...investmentConfig}
-        newConfig.investmentTargets[index].percentage = Number(event.target.value)
-
-        const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
-        newConfig.isOverLimit = newTotalPercentage > 100
-        setInvestmentConfig(newConfig)
-        setTotalPercentage(newTotalPercentage)
     }
 
     const handleRemoveTarget = (index: number) => {
-        if (investmentConfig.investmentTargets.length === 1) return
-
         const newConfig = {...investmentConfig}
-        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
-        setSelectedCurrencies(new Map(Array.from(selectedCurrencies.entries()).filter(([key, value]) => key !== removedCurrency)))
-        const newTotalPercentage = newConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
-        newConfig.isOverLimit = newTotalPercentage > 100
-        setTotalPercentage(newTotalPercentage)
+    }
+
+    const handleInvestmentAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const newConfig = {...investmentConfig}
+        newConfig.investmentAmount = Number(e.target.value)
+        setInvestmentConfig(newConfig)
     }
 
     const handleFormSubmit = (e: FormEvent) => {
         e.preventDefault()
-
         let newErrors: string[] = []
-
-        if (investmentConfig.isOverLimit || totalPercentage < 100) {
-            newErrors.push('Total investment percentage should be exactly 100%')
-        }
 
         if (investmentConfig.investmentAmount <= 0) {
             newErrors.push('Investment amount should be greater than 0')
@@ -114,80 +55,49 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
             newErrors.push('Investment targets should not be empty')
         }
 
+        const totalPercentage = investmentConfig.investmentTargets.reduce((sum, target) => sum + target.percentage, 0)
+
+        if (totalPercentage !== 100) {
+            newErrors.push('Total investment percentage should be exactly 100%')
+        }
+
+        setErrors(newErrors)
         if (newErrors.length > 0) {
-            setErrors(newErrors)
+            submit(false)
             return
         }
 
-        const newConfig = {...investmentConfig}
-        if (!dateSelected) {
-            newConfig.startDate = latestStartDate
-        }
-
-        setInvestmentConfig(newConfig)
-        handleSubmit()
+        submit(true)
     }
-
     return (
         <div className="m-4">
             <h1 className="text-2xl font-bold mb-4">Investment Form</h1>
             <form onSubmit={handleFormSubmit} className="space-y-4">
-                <Note type="default">You still need to distribute {100 - totalPercentage}%</Note>
                 {investmentConfig.investmentTargets.map((target, index) => (
                     <div key={index}>
                         <InvestmentTarget
                             target={target}
                             index={index}
-                            selectedCurrencies={Array.from(selectedCurrencies.values())}
-                            setSelectedCurrencies={setSelectedCurrencies}
                             onCurrencyChange={handleCurrencyChange}
                             onPercentageChange={handlePercentageChange}
                             onRemoveTarget={handleRemoveTarget}
                         />
                     </div>
                 ))}
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Investment Frequency</label>
-                    <FrequencySelector
-                        frequencyConfig={investmentConfig.frequencyConfig}
-                        onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
-                    />
-                </div>
-
                 <div>
                     <Button type="secondary" onClick={handleAddTarget}>
                         +
                     </Button>
                 </div>
-
-                {investmentConfig.isOverLimit && <Note type="error">Total investment percentage exceeds 100%</Note>}
-                {submitted && totalPercentage !== 100 && <Note type="error">Total investment percentage should be exactly 100%</Note>}
-                {submitted && investmentConfig.investmentAmount <= 0 && <Note type="error">Investment amount should be greater than 0</Note>}
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
-                    <DatePicker
-                        selected={latestStartDate}
-                        minDate={latestStartDate}
-                        onChange={(date) => {
-                            setInvestmentConfig({...investmentConfig, startDate: date || new Date()})
-                            setDateSelected(true)
-                        }}
-                    />{' '}
-                </div>
-
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
                     <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
                 </div>
-
                 {errors.map((error, i) => (
                     <Note key={i} type="error">
                         {error}
                     </Note>
                 ))}
-
                 <div>
                     <Button type="success" htmlType="submit">
                         Invest
