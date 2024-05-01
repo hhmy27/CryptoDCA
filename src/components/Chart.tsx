@@ -66,17 +66,6 @@ export const useInvestmentData = (investmentConfig: InvestmentConfig) => {
     return {investmentDataByCurrency, portfolioStats, isLoading}
 }
 
-const CustomDot = (props) => {
-    console.log('CustomDot props:', props)
-    const {cx, cy, payload} = props
-
-    if (payload.isInvestment) {
-        return <circle cx={cx} cy={cy} r={6} stroke="red" strokeWidth={3} fill="red" />
-    }
-
-    return null
-}
-
 export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmentConfig}) => {
     const {investmentDataByCurrency, portfolioStats, isLoading} = useInvestmentData(investmentConfig)
 
@@ -103,6 +92,25 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
         })
     }
 
+    const CustomTooltip = ({active, payload}) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload
+            return (
+                <div className="custom-tooltip">
+                    <p className="label">{`Date : ${data.date}`}</p>
+                    <p className="intro">{`Close : ${data.close}`}</p>
+                    <p className="intro">{`Current Total Value : ${data.currentTotalValue}`}</p>
+                    <p className="intro">{`Total Investment : ${data.totalInvestment}`}</p>
+                    <p className="intro">{`Current Profit : ${data.currentProfit}`}</p>
+                    <p className="intro">{`Profit Rate : ${data.profitRate}`}</p>
+                    <p className="intro">{`Holding Cost : ${data.holdingCost}`}</p>
+                </div>
+            )
+        }
+
+        return null
+    }
+
     return (
         <div>
             <h1>Chart</h1>
@@ -110,12 +118,9 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                 <p>Loading...</p>
             ) : (
                 <>
-                    {/* <pre>{JSON.stringify(investmentConfig, null, 2)}</pre> */}
-                    {/* <pre>{JSON.stringify(investmentDataByCurrency, null, 2)}</pre> */}
-                    {/* <pre>{JSON.stringify(portfolioStats, null, 2)}</pre> */}
                     <LineChart
-                        width={500}
-                        height={300}
+                        width={1500}
+                        height={900}
                         data={data}
                         margin={{
                             top: 5,
@@ -126,9 +131,27 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip
+                            allowEscapeViewBox={{
+                                x: false,
+                                y: false
+                            }}
+                            animationDuration={1500}
+                            contentStyle={{}}
+                            coordinate="{ x: 0, y: 0 }"
+                            isAnimationActive="true in CSR, and false in SSR"
+                            itemSorter={function noRefCheck() {}}
+                            itemStyle={{}}
+                            labelStyle={{}}
+                            viewBox={{
+                                height: 0,
+                                width: 0,
+                                x: 0,
+                                y: 0
+                            }}
+                            content={<CustomTooltip />}
+                        />
                         <Line type="monotone" dataKey="close" stroke="#8884d8" activeDot={{r: 8}} />
-                        <Scatter dataKey="isInvestment" />
                     </LineChart>
                 </>
             )}

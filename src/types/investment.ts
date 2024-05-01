@@ -4,8 +4,10 @@ import * as yup from 'yup'
 import {ChangeEvent, createContext} from 'react'
 import {create} from 'zustand'
 
+export type frequency = 'daily' | 'weekly' | 'monthly'
+
 export type FrequencyConfig = {
-    frequency: 'daily' | 'weekly' | 'monthly'
+    frequency: frequency
     dayOfWeek?: number // 1-7 represents Monday to Sunday
     dayOfMonth?: number
 }
@@ -18,6 +20,7 @@ export type InvestmentData = {
     profitRate: number
     holdingCost: number
 }
+
 export type PortfolioStats = {
     currentTotalValue: number
     totalInvestment: number
