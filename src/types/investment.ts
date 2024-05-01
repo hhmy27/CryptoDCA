@@ -10,13 +10,6 @@ export type FrequencyConfig = {
     dayOfMonth?: number
 }
 
-export type InvestmentFormProps = {
-    investmentConfig: InvestmentConfig
-    setInvestmentConfig: React.Dispatch<React.SetStateAction<InvestmentConfig>>
-    submitted: boolean
-    handleSubmit: () => void
-}
-
 export type InvestmentData = {
     date: Date
     currentTotalValue: number
@@ -104,6 +97,13 @@ export const useInvestmentStore = create<Store>((set, get) => ({
 export interface InvestmentAllocation {
     currency: string
     percentage: number
+}
+
+export type InvestmentFormProps = {
+    investmentConfig: InvestmentConfig
+    setInvestmentConfig: Store['setInvestmentConfig']
+    setSubmitted: Store['setSubmitted']
+    setStartDate: Store['setStartDate']
 }
 
 export interface InvestmentTargetProps {

@@ -1,22 +1,16 @@
-import React, {useState, useEffect, ChangeEvent, FormEvent} from 'react'
-import {Select, Input, Button, Text, Note} from '@geist-ui/react'
+import React, {useState, ChangeEvent, FormEvent} from 'react'
+import {Input, Button, Note} from '@geist-ui/react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {supportedCryptocurrencies} from '@/lib/config'
 import {FrequencySelector} from './FrequencySelector'
-import {InvestmentAllocation, InvestmentFormProps} from '@/types/investment'
+import {InvestmentFormProps} from '@/types/investment'
 import {InvestmentTarget} from '@/components/InvestmentTarget'
-import {InvestmentConfig, FrequencyConfig} from '@/types/investment'
-import {Cryptocurrency} from '@/types/investment'
-import {useInvestmentStore} from '@/types/investment'
 
-export const InvestmentForm: React.FC = () => {
+export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig, setInvestmentConfig, setStartDate, setSubmitted}) => {
     const [errors, setErrors] = useState<string[]>([])
 
-    const {investmentConfig, setInvestmentConfig, setStartDate, setSubmitted} = useInvestmentStore()
-
     const totalPercentage = investmentConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
-    const selectedCurrencies = investmentConfig.investmentTargets.map((target) => target.currency)
     const currencySet = new Set(investmentConfig.investmentTargets.map((a) => a.currency))
     const latestStartDate = investmentConfig.investmentTargets
         .map((target) => supportedCryptocurrencies[target.currency].startDate)
@@ -52,7 +46,7 @@ export const InvestmentForm: React.FC = () => {
 
     const handleAddTarget = () => {
         const newConfig = {...investmentConfig}
-        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !selectedCurrencies.includes(currency))
+        const unselectedCurrencies = Object.keys(supportedCryptocurrencies).filter((currency) => !currencySet.has(currency))
         const newCurrency = unselectedCurrencies.length > 0 ? unselectedCurrencies[0] : ''
         newConfig.investmentTargets.push({currency: newCurrency, percentage: 0})
         setInvestmentConfig(newConfig)
@@ -62,7 +56,6 @@ export const InvestmentForm: React.FC = () => {
 
     const handleRemoveTarget = (index: number) => {
         const newConfig = {...investmentConfig}
-        const removedCurrency = newConfig.investmentTargets[index].currency
         newConfig.investmentTargets.splice(index, 1)
         setInvestmentConfig(newConfig)
 
@@ -131,7 +124,14 @@ export const InvestmentForm: React.FC = () => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
-                    <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
+                    <Input
+                        type="default"
+                        min="0"
+                        step="0.01"
+                        value={String(investmentConfig.investmentAmount)}
+                        onChange={handleInvestmentAmountChange}
+                        placeholder="Investment amount"
+                    />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Investment Frequency</label>
@@ -156,7 +156,7 @@ export const InvestmentForm: React.FC = () => {
                     </Note>
                 ))}
                 <div>
-                    <Button type="success" htmlType="submit">
+                    <Button type="success" htmlType="submit" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                         Invest
                     </Button>
                 </div>
