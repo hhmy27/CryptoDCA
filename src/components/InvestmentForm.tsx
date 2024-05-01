@@ -63,6 +63,9 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
     }
 
     const handleInvestmentAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value !== '' && isNaN(Number(e.target.value))) {
+            return
+        }
         const newConfig = {...investmentConfig}
         newConfig.investmentAmount = Number(e.target.value)
         setInvestmentConfig(newConfig)
