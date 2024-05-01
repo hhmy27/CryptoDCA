@@ -71,14 +71,6 @@ export const InvestmentForm: React.FC<InvestmentFormProps> = ({investmentConfig,
     const handleFormSubmit = (e: FormEvent) => {
         e.preventDefault()
         let newErrors: string[] = []
-        console.log(
-            'investmentConfig.investmentAmount',
-            investmentConfig.investmentAmount,
-            'investmentConfig.investmentTargets',
-            investmentConfig.investmentTargets,
-            'totalPercentage',
-            totalPercentage
-        )
 
         if (investmentConfig.investmentAmount <= 0) {
             newErrors.push('Investment amount should be greater than 0')

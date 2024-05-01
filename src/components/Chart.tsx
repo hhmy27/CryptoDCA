@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import {InvestmentConfig, InvestmentData, PorfolioStats} from '@/types/investment'
+import {InvestmentConfig, InvestmentData, PortfolioStats} from '@/types/investment'
 import {calculateMultipleInvestments} from '@/lib/calc'
 import {endDate} from '@/lib/config'
-export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmentConfig}) => {
+
+export const useInvestmentData = (investmentConfig: InvestmentConfig) => {
     const [investmentDataByCurrency, setInvestmentDataByCurrency] = useState<{[key: string]: InvestmentData[]}>({})
-    const [portfolioStats, setPortfolioStats] = useState<PortfolioStats>({currentTotalValue: 0, totalInvestment: 0, currentProfit: 0, profitRate: 0})
+    const [portfolioStats, setPortfolioStats] = useState<PortfolioStats>({currentTotalValue: 0, totalInvestment: 0, currentProfit: 0, profitRate: 0, holdingCost: 0})
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
@@ -30,22 +31,22 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
             .then((dataArrays) => {
                 const newInvestmentDataByCurrency: {[key: string]: InvestmentData[]} = {} // Create a new empty object
                 dataArrays.forEach((data, index) => {
-                    newInvestmentDataByCurrency[investmentConfig.investmentTargets[index].currency] = data
+                    newInvestmentDataByCurrency[investmentConfig.investmentTargets[index].currency] = data.investmentData
                 })
 
                 let currentTotalValue = 0
                 let totalInvestment = 0
+                let holdingCost = 0
                 Object.values(newInvestmentDataByCurrency).forEach((investmentData) => {
                     // Only take the last investment data
                     const lastInvestmentData = investmentData[investmentData.length - 1]
                     currentTotalValue += lastInvestmentData.currentTotalValue
                     totalInvestment += lastInvestmentData.totalInvestment
+                    holdingCost += lastInvestmentData.holdingCost
                 })
                 const currentProfit = currentTotalValue - totalInvestment
                 const profitRate = currentProfit / totalInvestment
-                console.log('investmentDataByCurrency', investmentDataByCurrency)
-                console.log({currentTotalValue, totalInvestment, currentProfit, profitRate})
-                setPortfolioStats({currentTotalValue, totalInvestment, currentProfit, profitRate})
+                setPortfolioStats({currentTotalValue, totalInvestment, currentProfit, profitRate, holdingCost})
                 setInvestmentDataByCurrency(newInvestmentDataByCurrency)
                 setIsLoading(false)
             })
@@ -54,6 +55,12 @@ export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmen
                 setIsLoading(false)
             })
     }, [investmentConfig])
+
+    return {investmentDataByCurrency, portfolioStats, isLoading}
+}
+
+export const Chart: React.FC<{investmentConfig: InvestmentConfig}> = ({investmentConfig}) => {
+    const {investmentDataByCurrency, portfolioStats, isLoading} = useInvestmentData(investmentConfig)
 
     return (
         <div>
