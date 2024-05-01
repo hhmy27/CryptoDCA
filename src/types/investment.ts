@@ -69,6 +69,7 @@ type Store = {
     snapshotConfig: InvestmentConfig
     setInvestmentConfig: (config: InvestmentConfig) => void
     submitted: boolean
+    setStartDate: (date: Date) => void
     setSubmitted: (value: boolean) => void
 }
 
@@ -76,7 +77,7 @@ export const useInvestmentStore = create<Store>((set, get) => ({
     investmentConfig: {
         investmentTargets: [{currency: 'BTC-USD', percentage: 100}],
         frequencyConfig: {frequency: 'daily'},
-        startDate: new Date(),
+        startDate: new Date('2014-09-17'),
         investmentAmount: 0,
         isOverLimit: false
     },
@@ -89,6 +90,7 @@ export const useInvestmentStore = create<Store>((set, get) => ({
     },
     submitted: false,
     setInvestmentConfig: (config) => set({investmentConfig: config}),
+    setStartDate: (date) => set({investmentConfig: {...get().investmentConfig, startDate: date}}),
     setSubmitted: (value) => {
         const state = get()
         if (value && !_.isEqual(state.investmentConfig, state.snapshotConfig)) {

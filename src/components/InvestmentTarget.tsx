@@ -21,7 +21,7 @@ export const InvestmentTarget: React.FC<InvestmentTargetProps> = ({target, index
         if (e.target.value !== '' && isNaN(Number(e.target.value))) {
             return
         }
-        onPercentageChange(index, e)
+        onPercentageChange(index, Number(e.target.value))
     }
 
     const handleSelectChange = (value: string) => {

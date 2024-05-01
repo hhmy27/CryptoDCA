@@ -13,11 +13,15 @@ import {useInvestmentStore} from '@/types/investment'
 export const InvestmentForm: React.FC = () => {
     const [errors, setErrors] = useState<string[]>([])
 
-    const {investmentConfig, setInvestmentConfig, setSubmitted} = useInvestmentStore()
+    const {investmentConfig, setInvestmentConfig, setStartDate, setSubmitted} = useInvestmentStore()
 
     const totalPercentage = investmentConfig.investmentTargets.reduce((total, target) => total + target.percentage, 0)
     const selectedCurrencies = investmentConfig.investmentTargets.map((target) => target.currency)
     const currencySet = new Set(investmentConfig.investmentTargets.map((a) => a.currency))
+    const latestStartDate = investmentConfig.investmentTargets
+        .map((target) => supportedCryptocurrencies[target.currency].startDate)
+        .sort()
+        .reverse()[0]
 
     const distributePercentageEqually = () => {
         const targetCount = investmentConfig.investmentTargets.length
@@ -74,6 +78,14 @@ export const InvestmentForm: React.FC = () => {
     const handleFormSubmit = (e: FormEvent) => {
         e.preventDefault()
         let newErrors: string[] = []
+        console.log(
+            'investmentConfig.investmentAmount',
+            investmentConfig.investmentAmount,
+            'investmentConfig.investmentTargets',
+            investmentConfig.investmentTargets,
+            'totalPercentage',
+            totalPercentage
+        )
 
         if (investmentConfig.investmentAmount <= 0) {
             newErrors.push('Investment amount should be greater than 0')
@@ -120,6 +132,23 @@ export const InvestmentForm: React.FC = () => {
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
                     <Input type="default" min="0" step="0.01" value={investmentConfig.investmentAmount} onChange={handleInvestmentAmountChange} placeholder="Investment amount" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Investment Frequency</label>
+                    <FrequencySelector
+                        frequencyConfig={investmentConfig.frequencyConfig}
+                        onFrequencyConfigChange={(newFrequencyConfig) => setInvestmentConfig({...investmentConfig, frequencyConfig: newFrequencyConfig})}
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                    <DatePicker
+                        selected={latestStartDate ? new Date(latestStartDate) : new Date()}
+                        minDate={latestStartDate ? new Date(latestStartDate) : new Date()}
+                        onChange={(date) => {
+                            setStartDate(date || new Date())
+                        }}
+                    />{' '}
                 </div>
                 {errors.map((error, i) => (
                     <Note key={i} type="error">
